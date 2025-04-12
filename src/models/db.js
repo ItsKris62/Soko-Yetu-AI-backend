@@ -1,9 +1,17 @@
-const { Pool } = require('pg')
-require('dotenv').config()
+// db.js using CommonJS
+const pg = require("pg");
+const dotenv = require("dotenv");
 
-const db = new Pool({
+dotenv.config();
+
+// pool for automatic pooling with the DB
+const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-})
+  ssl: {
+    rejectUnauthorized: false, // For CockroachDB TLS
+  },
+});
 
-module.exports = db
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+};

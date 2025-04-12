@@ -7,8 +7,8 @@ router.post('/register', controller.register)
 router.post('/login', controller.login)
 router.get('/me', isAuth, controller.getMe)
 
-router.get('/refresh', controller.refresh)
-router.post('/logout', controller.logout)
+// router.get('/refresh', controller.refresh)
+// router.post('/logout', controller.logout)
 
 
 router.post('/reset-step1', controller.resetStep1)

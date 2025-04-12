@@ -1,6 +1,7 @@
 const db = require('../models/db')
 const bcrypt = require('bcrypt')
 const { signToken } = require('../utils/jwt')
+
 const {
   registerSchema,
   loginSchema,
@@ -119,6 +120,33 @@ exports.getMe = async (req, res) => {
 
   res.json(userRes.rows[0])
 }
+
+// REFRESH TOKEN
+exports.refresh = (req, res) => {
+  const token = req.cookies.token
+  if (!token) return res.status(401).json({ message: 'No token provided' })
+
+  try {
+    const decoded = require('../utils/jwt').verifyToken(token)
+    const newToken = require('../utils/jwt').signToken({ id: decoded.id, role: decoded.role })
+
+    res.cookie('token', newToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 3600000,
+    }).json({ message: 'Token refreshed' })
+  } catch (err) {
+    console.error(err)
+    res.status(401).json({ message: 'Invalid token' })
+  }
+}
+
+// LOGOUT
+exports.logout = (req, res) => {
+  res.clearCookie('token').json({ message: 'Logged out' })
+}
+
 
 // PASSWORD RESET FLOW
 exports.resetStep1 = async (req, res) => {

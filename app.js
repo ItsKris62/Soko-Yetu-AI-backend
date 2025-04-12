@@ -1,3 +1,6 @@
+//test route import
+// import testRoutes from './src/routes/test.routes.js';
+
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -11,11 +14,13 @@ app.use(express.json())
 app.use(cookieParser())
 
 // Routes
-app.use('/api/auth', require('./routes/auth.routes'))
-app.use('/api/auth', require('./routes/auth.routes'))
-app.use('/api/users', require('./routes/user.routes'))
-app.use('/api/produce', require('./routes/produce.routes.js'))
-app.use('/api/location', require('./routes/location.routes.js'))
+app.use('/api/auth', require('./src/routes/auth.routes.js'))
+app.use('/api/users', require('./src/routes/user.routes.js'))
+app.use('/api/produce', require('./src/routes/produce.routes.js'))
+app.use('/api/location', require('./src/routes/location.routes.js'))
+
+//test route
+// app.use('/api', testRoutes)
 
 
 
