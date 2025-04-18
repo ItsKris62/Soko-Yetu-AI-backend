@@ -5,7 +5,10 @@ exports.registerSchema = Joi.object({
   last_name: Joi.string().required(),
   id_number: Joi.string().required(),
   gender: Joi.string().valid('male', 'female').required(),
-  role: Joi.string().valid('farmer', 'buyer', 'other').required(),
+  role: Joi.string().valid('farmer', 'buyer', 'admin').required(),
+  county_id: Joi.string().pattern(/^\d+$/).required(),
+  sub_county_id: Joi.string().pattern(/^\d+$/).required(),
+  phone: Joi.string().min(7).required(),
   password: Joi.string().min(6).required(),
 })
 

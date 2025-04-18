@@ -8,8 +8,8 @@ exports.updateProfile = async (req, res) => {
 
   try {
     await db.query(
-      `UPDATE users SET first_name = $1, last_name = $2, gender = $3, location = ST_GeogPoint($4, $5)
-       WHERE id = $6`,
+      `UPDATE users SET first_name = $1, last_name = $2, gender = $3
+       WHERE id = $4`,
       [first_name, last_name, gender, longitude, latitude, req.user.id]
     )
 
