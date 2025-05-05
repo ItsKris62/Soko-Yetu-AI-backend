@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const emailService = require('../services/emailService');
-const { auditLogger } = require('../utils/auditLogger');
+const { logAudit } = require('../utils/auditLogger');
+const logger = require('../config/logger');
 const pool = require('../config/database');
 require('dotenv').config();
 
@@ -113,13 +114,14 @@ const authController = {
       await pool.query('INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)', [user.id, roleCheck.rows[0].id]);
 
       // Log audit event
-      await auditLogger(user.id, 'REGISTER', `User registered with email: ${email}`, null, req.ip);
+      await logAudit(user.id, 'register', `User registered with email: ${email}`, null, req);
 
       // Generate JWT
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
       res.status(201).json({ user, token });
     } catch (err) {
+      logger.error(`Registration failed: ${err.message}`);
       next(err);
     }
   },
@@ -146,7 +148,7 @@ const authController = {
       }
 
       // Log audit event
-      await auditLogger(user.id, 'LOGIN', `User logged in with email: ${email}`, null, req.ip);
+      await logAudit(user.id, 'login', `User logged in with email: ${email}`, null, req);
 
       // Generate JWT
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -156,6 +158,7 @@ const authController = {
         token,
       });
     } catch (err) {
+      logger.error(`Login failed: ${err.message}`);
       next(err);
     }
   },
@@ -191,10 +194,11 @@ const authController = {
       );
 
       // Log audit event
-      await auditLogger(user.id, 'PASSWORD_RESET_REQUEST', `Password reset requested for email: ${email}`, null, req.ip);
+      await logAudit(user.id, 'password_reset_request', `Password reset requested for email: ${email}`, null, req);
 
       res.json({ message: 'Password reset email sent' });
     } catch (err) {
+      logger.error(`Password reset request failed: ${err.message}`);
       next(err);
     }
   },
@@ -232,10 +236,11 @@ const authController = {
       await pool.query('DELETE FROM password_reset_tokens WHERE token = $1', [token]);
 
       // Log audit event
-      await auditLogger(userId, 'PASSWORD_RESET', 'Password reset successfully', null, req.ip);
+      await logAudit(userId, 'password_reset', 'Password reset successfully', null, req);
 
       res.json({ message: 'Password reset successful' });
     } catch (err) {
+      logger.error(`Password reset failed: ${err.message}`);
       next(err);
     }
   },
@@ -246,8 +251,11 @@ const authController = {
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
+      // Log audit event
+      await logAudit(user.id, 'view_profile', 'User viewed own profile', null, req);
       res.json(user);
     } catch (err) {
+      logger.error(`Profile retrieval failed: ${err.message}`);
       next(err);
     }
   },

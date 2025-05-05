@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const { Server } = require('socket.io');
 const http = require('http');
+const auditMiddleware = require('./src/middleware/auditMiddleware');
 const { errorHandler } = require('./src/middleware/errorHandler');
 const { socketService } = require('./src/services/socketService');
 require('./src/config/passport'); // Passport JWT setup
@@ -29,6 +30,8 @@ app.use(
     max: 100, // Limit each IP to 100 requests
   })
 );
+
+app.use(auditMiddleware); // Log all HTTP requests
 
 // Routes
 app.use('/api/auth', require('./src/routes/auth'));

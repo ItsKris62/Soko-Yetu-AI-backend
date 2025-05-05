@@ -1,11 +1,22 @@
-// utils/auditLogger.js
-const pool = require('../config/database');
+const { createAuditLog } = require('../models/auditLog');
 
-const auditLogger = async (user_id, action, details, product_id, ip) => {
-  await pool.query(
-    'INSERT INTO audit_logs (user_id, action, details, product_id, created_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)',
-    [user_id, action, details, product_id]
-  );
+exports.logAudit = async (userId, action, details, productId = null, req = null) => {
+  try {
+    // Enhance details with request metadata if available
+    let enhancedDetails = details;
+    if (req) {
+      const ip = req.ip || req.connection.remoteAddress;
+      const userAgent = req.get('User-Agent');
+      enhancedDetails = JSON.stringify({
+        message: details,
+        ip,
+        userAgent,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    await createAuditLog(userId, action, enhancedDetails, productId);
+  } catch (error) {
+    console.error('Failed to log audit event:', error.message);
+  }
 };
-
-module.exports = { auditLogger };
