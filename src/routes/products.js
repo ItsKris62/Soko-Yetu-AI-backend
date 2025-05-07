@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
-const { authMiddleware } = require('../middleware/authMiddleware');
-const { roleMiddleware } = require('../middleware/roleMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 

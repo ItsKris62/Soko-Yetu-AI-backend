@@ -8,7 +8,7 @@ const { Server } = require('socket.io');
 const http = require('http');
 const auditMiddleware = require('./src/middleware/auditMiddleware');
 const { errorHandler } = require('./src/middleware/errorHandler');
-const { socketService } = require('./src/services/socketService');
+const socketService = require('./src/services/socketService');
 require('./src/config/passport'); // Passport JWT setup
 require('dotenv').config();
 
@@ -45,10 +45,10 @@ app.use('/api/ai', require('./src/routes/ai'));
 app.use('/api/feedback', require('./src/routes/feedback'));
 app.use('/api/ratings', require('./src/routes/ratings'));
 app.use('/api/audit', require('./src/routes/audit'));
-app.use('/api/locations', require('./src/routes/locations'));
+app.use('/api/locations', require('./src/routes/location'));
 
 // Socket.IO for real-time messaging
-socketService(io);
+socketService.init(server);
 
 // Error Handling
 app.use(errorHandler);
