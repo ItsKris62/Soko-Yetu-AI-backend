@@ -1,15 +1,27 @@
 // middleware/errorHandler.js
-const { logger } = require('../config/logger'); // Assuming Winston logger setup
+// const { logger } = require('../config/logger'); // Assuming Winston logger setup
+
+const loggerInstance = require('../config/logger'); // Renamed to avoid conflict if logger is not an object with an error method
+
 
 const errorHandler = (err, req, res, next) => {
   // Log the error for debugging
-  logger.error({
-    message: err.message,
-    stack: err.stack,
-    method: req.method,
-    url: req.url,
-    ip: req.ip,
-  });
+  if (loggerInstance && typeof loggerInstance.error === 'function') {
+    loggerInstance.error({
+      message: err.message || 'Error message not available',
+      stack: err.stack || 'Stack trace not available',
+      status: err.status || err.statusCode || 500,
+      method: req.method,
+      url: req.originalUrl, // Use originalUrl for the full path
+      ip: req.ip,
+    });
+  } else {
+    // Fallback if logger is not available or not configured as expected
+    console.error("ERROR HANDLER FALLBACK - Logger not available or logger.error is not a function.");
+    console.error("Original Error Status:", err.status || err.statusCode || 500);
+    console.error("Original Error Message:", err.message);
+    console.error("Original Error Stack:", err.stack);
+  }
 
   // Handle specific error types
   if (err.name === 'ValidationError') {
