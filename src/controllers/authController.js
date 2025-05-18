@@ -18,15 +18,19 @@ const authController = {
         email,
         phone_number,
         password,
-        role = 'farmer', // Default role
+        gender,
+        date_of_birth,
+        role,
         country_id,
         county_id,
         sub_county_id,
+        id_number,
+        
       } = req.body;
 
       // Validate required fields
-      if (!first_name || !last_name || !email || !phone_number || !password || !country_id || !county_id) {
-        return res.status(400).json({ error: 'First name, last name, email, phone number, password, country, and county are required' });
+      if (!first_name || !last_name || !email || !phone_number || !password || !gender || !date_of_birth || !role || !country_id || !county_id || !id_number) {
+        return res.status(400).json({ error: 'First name, last name, email, phone number, password, gender, date of birth, role, country, county and ID number are required' });
       }
 
       // Validate email format
@@ -96,7 +100,9 @@ const authController = {
         email,
         phone_number,
         password,
-        gender: null, // Not provided in frontend
+        gender,
+        date_of_birth, 
+        role,
         country_id,
         county_id,
         sub_county_id: sub_county_id || null,

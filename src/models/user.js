@@ -11,6 +11,8 @@ const User = {
       phone_number,
       password,
       gender,
+      date_of_birth,
+      role,      
       country_id,
       county_id,
       sub_county_id,
@@ -20,17 +22,17 @@ const User = {
     } = userData;
 
     // Validate gender (matches CHECK constraint)
-    if (gender && !['male', 'female', 'other'].includes(gender)) {
+    if (gender && !['male', 'female'].includes(gender)) {
       throw new Error('Invalid gender value');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = `
       INSERT INTO users (
-        first_name, last_name, email, phone_number, password, gender,
-        country_id, county_id, sub_county_id, id_number, avatar_url, national_id_url, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP)
-      RETURNING id, first_name, last_name, email, phone_number, is_verified, created_at
+        first_name, last_name, email, phone_number, password, gender, date_of_birth, role, /* 8 */
+        country_id, county_id, sub_county_id, id_number, avatar_url, national_id_url, created_at /* 15 */
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, CURRENT_TIMESTAMP)
+      RETURNING id, first_name, last_name, email, phone_number, role, is_verified, created_at
     `;
     const values = [
       first_name,
@@ -39,6 +41,8 @@ const User = {
       phone_number,
       hashedPassword,
       gender || null,
+      date_of_birth || null,  // goes into `date_of_birth`
+      role,
       country_id,
       county_id || null, // Nullable for non-Kenyan users
       sub_county_id || null, // Nullable for non-Kenyan users
