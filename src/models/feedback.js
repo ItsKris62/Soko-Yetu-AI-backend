@@ -2,9 +2,9 @@
 const db = require('../config/database');
 
 const Feedback = {
-  async create(feedback) {
-    const query = 'INSERT INTO feedback (user_id, feedback) VALUES ($1, $2) RETURNING *';
-    const values = [feedback.user_id, feedback.feedback];
+  async create({ user_id, feedback, name }) { // Destructure name here
+    const query = 'INSERT INTO feedback (user_id, feedback, name) VALUES ($1, $2, $3) RETURNING *'; // Add name to query
+    const values = [user_id, feedback, name]; // Add name to values
     const result = await db.query(query, values);
     return result.rows[0];
   },

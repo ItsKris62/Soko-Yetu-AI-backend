@@ -6,19 +6,29 @@ const logger = require('../config/logger');
 const feedbackController = {
   async submit(req, res, next) {
     try {
-      const { feedback } = req.body;
-      const user_id = req.user.id;
+      const { feedback, name, user_id } = req.body; // Extract name and user_id from body
 
       // Validate inputs
       if (!feedback) {
         return res.status(400).json({ error: 'Feedback is required' });
       }
+      // The frontend form makes 'name' required, so it should generally be present.
+      // You could add a specific validation for name if it can be optional under some conditions.
+      // if (!name) {
+      //   return res.status(400).json({ error: 'Name is required' });
+      // }
 
       // Create feedback
-      const feedbackRecord = await Feedback.create({ user_id, feedback });
+      const feedbackData = {
+        user_id, // This comes from the frontend, can be null for anonymous users
+        name,
+        feedback,
+      };
+      const feedbackRecord = await Feedback.create(feedbackData);
 
       // Log audit event
-      await logAudit(user_id, 'submit_feedback', 'Feedback submitted', null, req);
+      const auditUserId = req.user ? req.user.id : (user_id || 'anonymous_user');
+      await logAudit(auditUserId, 'submit_feedback', `Feedback submitted by ${name || 'anonymous'}`, { feedbackId: feedbackRecord.id }, req);
 
       res.status(201).json(feedbackRecord);
     } catch (err) {
