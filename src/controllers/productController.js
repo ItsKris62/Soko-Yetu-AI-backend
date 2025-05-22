@@ -49,21 +49,58 @@ const productController = {
   },
 
   async getAll(req, res, next) {
-    try {
-      const { category_id, country_id, county_id, page = 1, limit = 10 } = req.query;
-      const offset = (page - 1) * limit;
+  try {
+    const {
+      category_id,
+      country_id,
+      county_id,
+      page = 1,
+      limit = 10,
+      minPrice,
+      maxPrice,
+      qualityRating,
+      search,
+    } = req.query;
+    const offset = (page - 1) * limit;
 
-      const products = await Product.findAll({ category_id, country_id, county_id, limit, offset });
+    // Build query conditions
+    let conditions = {};
+    if (category_id) conditions.category_id = category_id;
+    if (country_id) conditions.country_id = country_id;
+    if (county_id) conditions.county_id = county_id;
 
-      // Log audit event
-      await logAudit(req.user?.id, 'view_products', 'Product list viewed', null, req);
-
-      res.json(products);
-    } catch (err) {
-      logger.error(`Product retrieval failed: ${err.message}`);
-      next(err);
+    // Add price range filtering
+    if (minPrice || maxPrice) {
+      conditions.price = {};
+      if (minPrice) conditions.price.$gte = parseFloat(minPrice);
+      if (maxPrice) conditions.price.$lte = parseFloat(maxPrice);
     }
-  },
+
+    // Add quality rating filtering
+    if (qualityRating) {
+      conditions.ai_quality_grade = { $gte: parseFloat(qualityRating) };
+    }
+
+    // Add search filtering
+    if (search) {
+      conditions.$or = [
+        { name: { $like: `%${search}%` } },
+        { description: { $like: `%${search}%` } },
+      ];
+    }
+
+    const products = await Product.findAll({ ...conditions, limit, offset });
+    const total = await Product.count(conditions);
+
+    // Log audit event
+    await logAudit(req.user?.id, 'view_products', 'Product list viewed', null, req);
+
+    res.json({ products, total });
+  } catch (err) {
+    logger.error(`Product retrieval failed: ${err.message}`);
+    next(err);
+  }
+},
 
   async getById(req, res, next) {
     try {
