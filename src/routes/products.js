@@ -9,6 +9,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/', authMiddleware, roleMiddleware(['farmer']), upload.single('image'), productController.create);
 router.get('/', productController.getAll);
+router.get('/suggestions', productController.getSuggestions);
 router.get('/:id', productController.getById);
 
 module.exports = router;

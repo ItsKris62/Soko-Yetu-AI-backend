@@ -49,6 +49,7 @@ app.use(fileUpload({
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/users', require('./src/routes/users'));
 app.use('/api/categories', require('./src/routes/categories'));
+app.use('/api/predefined-products', require('./src/routes/predefined_products'));
 app.use('/api/products', require('./src/routes/products'));
 app.use('/api/orders', require('./src/routes/orders'));
 app.use('/api/community', require('./src/routes/community'));
