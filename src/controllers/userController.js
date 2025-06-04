@@ -94,6 +94,48 @@ const userController = {
       next(err);
     }
   },
+
+  async refreshToken(req, res, next) {
+    try {
+      // TODO: Implement actual token refresh logic.
+      // This typically involves receiving a refresh token in the request body,
+      // validating it, and issuing a new access token.
+      // const { refreshToken } = req.body;
+      // if (!refreshToken) {
+      //   return res.status(400).json({ error: 'Refresh token is required' });
+      // }
+      // For now, let's assume you have a service to handle this.
+      // const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
+      // res.json({ accessToken: newAccessToken });
+
+      logger.info('User controller: refreshToken endpoint hit. Logic not yet implemented.');
+      res.status(501).json({ message: 'Token refresh functionality not implemented yet.' });
+    } catch (err) {
+      logger.error(`Token refresh failed: ${err.message}`);
+      next(err);
+    }
+  },
+
+  async validateToken(req, res, next) {
+    try {
+      // The authMiddleware (applied in users.js) should have already run.
+      // If the token was invalid, authMiddleware would have sent an error response,
+      // and this handler would not be reached.
+      // If we reach here, req.user is populated and the token is valid.
+      logger.info(`Token validation successful for user ID: ${req.user.id}`);
+      res.json({
+        message: 'Token is valid.',
+        user: { // Send back some basic user info if needed
+          id: req.user.id,
+          email: req.user.email, // Assuming email is part of req.user from authMiddleware
+          role: req.user.role,   // Assuming role is part of req.user
+        },
+      });
+    } catch (err) {
+      logger.error(`Token validation endpoint error: ${err.message}`);
+      next(err);
+    }
+  },
 };
 
 module.exports = userController;

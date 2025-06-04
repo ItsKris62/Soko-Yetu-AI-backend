@@ -15,5 +15,7 @@ router.put(
 );
 router.get('/:id', authMiddleware, userController.getById);
 router.post('/verify', authMiddleware, roleMiddleware(['admin']), userController.verify);
+router.post('/refresh', userController.refreshToken);
+router.get('/validate', authMiddleware, userController.validateToken);
 
 module.exports = router;

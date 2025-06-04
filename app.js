@@ -21,14 +21,24 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: process.env.CLIENT_URL || 'http://localhost:3000' },
+  credentials: true, // Allow credentials
 });
+
+// CORS Options
+const corsOptions = {
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true, // <-- Important for cookies, authorization headers with JWTs
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions)); // Use configured CORS middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(passport.initialize());
+
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
