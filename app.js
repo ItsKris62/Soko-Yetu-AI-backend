@@ -71,6 +71,7 @@ app.use('/api/ratings', require('./src/routes/ratings'));
 app.use('/api/audit', require('./src/routes/audit'));
 app.use('/api/locations', require('./src/routes/location'));
 app.use('/api/upload', uploadRoutes);
+app.use('/api/resources', require('./src/routes/resources'));
 
 // Socket.IO for real-time messaging
 socketService.init(server);
